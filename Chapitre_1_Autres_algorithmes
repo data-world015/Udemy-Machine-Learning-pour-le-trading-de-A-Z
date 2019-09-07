@@ -1,0 +1,31 @@
+from sklearn.svm import SVR
+svr = SVR()
+
+svr.fit(X_train_sc, y_train_sc)
+
+y_pred_0 = svr.predict(X_test_sc)
+y_pred_0 = sc.inverse_transform(y_pred_0)
+
+gain(y_test,y_pred_0)
+
+
+from sklearn.svm import LinearSVR
+svr_lin = LinearSVR(max_iter = 100000)
+
+svr_lin.fit(X_train_sc, y_train_sc)
+y_pred_1 = svr_lin.predict(X_test_sc)
+y_pred_1 = sc.inverse_transform(y_pred_1)
+
+gain(y_test,y_pred_1)
+
+
+
+from sklearn.ensemble import RandomForestRegressor
+rfr = RandomForestRegressor()
+
+rfr.fit(X_train_sc, y_train_sc)
+y_pred_2 = rfr.predict(X_test_sc)
+y_pred_2 = sc.inverse_transform(y_pred_2)
+
+gain(y_test, y_pred_1,seuil_hausse = 0.1, seuil_baisse = -0.1, effet_de_levier = 10)
+
