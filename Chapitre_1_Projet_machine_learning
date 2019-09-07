@@ -1,0 +1,49 @@
+##### Importation des libraires
+import numpy as np
+import pandas as pds
+
+##### Importation de la dataset
+dataset = pds.read_excel("udemy.xlsx")
+
+
+##### Création de notre dataset
+X = dataset[["CAC40", "SP500", "DAX30", "EURUSD", "NQ100"]]
+y = dataset[["SP500"]]
+
+
+##### Découpage de la dataset
+X_train = X.iloc[0:1000,:].values
+y_train = y.iloc[1:1001,:].values
+
+X_test = X.iloc[1001:1476,:].values
+y_test = y.iloc[1002:1477,:].values
+
+
+##### Normalisation des données
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+
+X_train_sc = sc.fit_transform(X_train)
+X_test_sc = sc.transform(X_test)
+
+y_train_sc = sc.fit_transform(y_train)
+
+
+##### Création et entraînement d'une régression linéaire 
+from sklearn.linear_model import LinearRegression
+lr = LinearRegression()
+lr.fit(X_train_sc, y_train_sc)
+
+
+##### Prédictions
+y_pred = lr.predict(X_test_sc)
+y_pred = sc.inverse_transform(y_pred)
+
+
+
+from sklearn.metrics import r2_score
+r2_score(y_test, y_pred)
+
+import matplotlib.pyplot as plt
+plt.plot(y_test, color='gray')
+plt.plot(y_pred, color='green')
