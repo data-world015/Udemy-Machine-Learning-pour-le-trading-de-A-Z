@@ -1,0 +1,22 @@
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+
+
+
+def affiche_transformation(env):
+  min_ = [0] * (env.nb_pf * 2 + 1)
+
+  max_ = []
+  max_price = env.train_data.max(axis=1)
+  min_price = env.train_data.min(axis=1)
+  max_cash = env.invest_ini * 3 
+  max_stock_owned = max_cash // min_price
+  for i in max_stock_owned:
+    max_.append(i)
+  for i in max_price:
+    max_.append(i)
+  max_.append(max_cash)
+
+  scaler = StandardScaler()
+  scaler.fit([min_, max_])
+  return scaler
