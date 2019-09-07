@@ -1,0 +1,17 @@
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.optimizers import Adam
+
+
+
+def modele(nb_obs, nb_action, nb_couche=5, nb_neurone=55,
+        activation='tanh', loss='mse'):
+  #### ANN qui va determiner l'action optimale à choisir
+  model = Sequential()
+  model.add(Dense(nb_neurone, input_dim=nb_obs, activation=activation))
+  for _ in range(nb_couche):
+    model.add(Dense(nb_neurone, activation=activation))
+  model.add(Dense(nb_action, activation='linear'))
+  model.compile(loss=loss, optimizer=Adam())
+  print(model.summary())
+  return model
