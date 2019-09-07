@@ -1,0 +1,59 @@
+import numpy as np
+import pandas as pds
+
+##### CREATION DE LA DATASET
+dataset = pds.read_excel("CAC40_udemy.xlsx")
+dataset_bis = dataset[["SP500 - 360", "NQ100 - 360", "GOLD - 360", "DJI30 - 360",
+                       "CAC40 - 480", "CAC40 - 360", "CAC40"]].dropna().reset_index(drop=True)
+
+X = dataset_bis[["SP500 - 360", "NQ100 - 360", "GOLD - 360", "DJI30 - 360",
+                       "CAC40 - 480", "CAC40 - 360"]]
+y = dataset_bis[["CAC40"]]
+
+
+####CREATION INDICATEURS TECHNIQUES
+
+base = dataset_bis[["CAC40 - 360"]]
+mm_20 = base.rolling(window=20).mean().reset_index(drop=True)
+mm_8 = base.rolling(window=8).mean().reset_index(drop=True)
+
+vl_20 = base.rolling(window=20).std().reset_index(drop=True)
+vl_8 = base.rolling(window=8).std().reset_index(drop=True)
+
+##### DECOUPAGE BASE DE DONNEES
+data_cac = pds.concat((vl_20, vl_8, mm_20, mm_8, X, y), axis = 1).dropna().reset_index(drop=True)
+
+X_train = data_cac.iloc[0:50000, 1:10].values
+y_train = data_cac.iloc[0:50000, 10:11].values
+
+X_test = data_cac.iloc[50000:len(data_cac), 1:10].values
+y_test = data_cac.iloc[50000:len(data_cac), 10:11].values
+
+
+#####STANDARDISATION DES DONNEES
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+
+X_train_sc = sc.fit_transform(X_train)
+X_test_sc = sc.transform(X_test)
+
+y_train_sc = sc.fit_transform(y_train)
+
+
+#####CREATION DU MODELE
+from keras.models import Sequential
+from keras.layers import Dense
+
+Regressor = Sequential()
+
+Regressor.add(Dense(units= 50, kernel_initializer = 'normal', activation = 'relu', input_dim = 9))
+Regressor.add(Dense(units= 50, kernel_initializer = 'normal', activation = 'relu'))
+Regressor.add(Dense(units= 1, kernel_initializer = 'normal', activation = 'relu'))
+
+Regressor.compile(optimizer = "adam", loss = "mean_squared_error")
+
+Regressor.fit(X_train_sc, y_train_sc, batch_size = 32, epochs=15)
+
+
+y_pred = Regressor.predict(X_test_sc)
+y_pred = sc.inverse_transform(y_pred)
