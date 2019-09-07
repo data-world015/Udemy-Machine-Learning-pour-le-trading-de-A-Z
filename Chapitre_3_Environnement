@@ -9,21 +9,17 @@ from gym.utils import seeding
 class env_financier(gym.Env):
   
   def __init__(self, data_train, invest_ini=20000):
-    # data
     self.train_data = np.around(data_train) # round up to integer to reduce state space
     self.nb_pf, self.n_jour = self.train_data.shape
 
-    # instance attributes
     self.invest_ini = invest_ini
     self.curseur = None
     self.position_prise = None
     self.prix_position = None
     self.budget_disp = None
 
-    # action space
     self.espace_action = spaces.Discrete(3**self.nb_pf)
 
-    # observation space: give estimates in order to sample and build scaler
     variation_max_prix = self.train_data.max(axis=1)
     variation_actif = [[0, invest_ini * 2 // h] for h in variation_max_prix]
     variation_prix = [[0, h] for h in variation_max_prix]
@@ -74,11 +70,9 @@ class env_financier(gym.Env):
 
   
   def _trade(self, action):
-    # all combo to sell(0), hold(1), or buy(2) stocks
     action_combo = list(map(list, itertools.product([0, 1, 2], repeat=self.nb_pf)))
     action_vec = action_combo[action]
 
-    # one pass to get sell/buy index
     sell_index = []
     buy_index = []
     for i, a in enumerate(action_vec):
@@ -87,7 +81,6 @@ class env_financier(gym.Env):
       elif a == 2:
         buy_index.append(i)
 
-    # two passes: sell first, then buy; might be naive in real-world settings
     if sell_index:
       for i in sell_index:
         self.budget_disp += self.prix_position[i] * self.position_prise[i]
