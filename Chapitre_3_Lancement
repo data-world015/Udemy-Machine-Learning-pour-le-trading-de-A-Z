@@ -1,0 +1,63 @@
+### IMPORTATION DES LIBRAIRIES
+import numpy as np
+import pandas as pds
+
+
+#### MISE EN PLACE DES VARIABLES DE LANCEMENT
+episode = 15
+investissement_disponible = 10000
+batch_size = 32
+valeur_portefeuil = []
+
+
+#### CREATION DE LA DATASET EN LA TRANSPOSANT
+dataset = pds.read_excel("CAC40_udemy.xlsx") 
+matrice = dataset[["NQ100"]].dropna().reset_index(drop=True).transpose()
+data = matrice.iloc[:,0:10000].values
+data = np.around(data)
+
+
+#### MISE EN PLACE DU MODELE
+env = env_financier(data, initial_invest)
+taille_etat = env.espace_observation.shape
+taille_action = env.espace_action.n
+agent = Agent(taille_etat, taille_action)
+transformation = affiche_transformation(env)
+
+
+#### LANCEMENT DU MODELE
+if __name__ == "__main__":
+  for t in range(episode):
+    etat = env.reset()
+    etat = transformation.transform([etat])
+    for time in range(env.n_jour):
+      action = agent.act(etat)
+      prochain_etat, recompense, done, info = env._etape(action)
+      prochain_etat = transformation.transform([prochain_etat])
+      agent.souvenir(etat, action, recompense, prochain_etat, done)
+      etat = prochain_etat
+      if done:
+        print("etape: {}/{}, etape et valeur: {}".format(
+          t + 1, episode, info['valeur_actuelle']))
+        valeur_portefeuil.append(info['valeur_actuelle']) 
+        break
+      if len(agent.memoire) > batch_size:
+        agent.replay(batch_size)
+    
+
+#### ANALYSER LA PERFORMANCE DU MODELE
+constante = []
+temps = []
+temps_15 = []
+temps_15_= []
+for i in range(30):
+    constante.append(investissement_disponible)
+    temps.append(i)
+    temps_15.append(9500 + (i * 100))
+    temps_15_.append(15)
+
+import matplotlib.pyplot as plt
+plt.scatter(temps, valeur_portefeuil, color="green")
+plt.scatter(temps, constante, color="yellow")    
+plt.scatter(temps_15_, temps_15, color="yellow")
+
