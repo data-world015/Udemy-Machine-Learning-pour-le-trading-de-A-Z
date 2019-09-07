@@ -1,0 +1,82 @@
+X_train = []
+for variable in range(0,9 ):
+    X = []
+    for i in range(20, 50000):
+        X.append(X_train_sc[i-20:i, variable])
+    X, np.array(X)
+    X_train.append(X)
+X_train =  np.array(X_train)
+
+
+X_train = np.swapaxes(np.swapaxes(X_train, 0, 1), 1, 2)
+
+
+y_train = []
+for i in range(20, 50000):
+    y_train.append(y_train_sc[i, 0])
+y_train = np.array(y_train).reshape(len(y_train),1)
+
+
+# Part 2 - Building the RNN
+
+# Importing the Keras libraries and packages
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers import Dropout
+from keras.layers import Flatten
+# Initialising the RNN
+Regressor = Sequential()
+
+Regressor.add(LSTM(units = 50, return_sequences = True, input_shape = (X_train.shape[1], 9)))
+Regressor.add(Dropout(0.2))
+
+Regressor.add(LSTM(units = 50, return_sequences = True))
+Regressor.add(Dropout(0.2))
+
+Regressor.add(LSTM(units = 50, return_sequences = True))
+Regressor.add(Dropout(0.2))
+
+Regressor.add(LSTM(units = 50))
+Regressor.add(Dropout(0.2))
+
+
+Regressor.add(Dense(units = 1))
+
+
+Regressor.compile(optimizer = 'adam', loss = 'mean_squared_error')
+
+
+Regressor.fit(X_train, y_train, epochs = 1, batch_size = 1000)
+
+
+
+y_pred = regressor.predict(X_test)
+y_pred = sc.inverse_transform(y_pred)
+ 
+
+X_test = []
+for variable in range(0,9 ):
+    X = []
+    for i in range(20, 14000):
+        X.append(X_test_sc[i-20:i, variable])
+    X, np.array(X)
+    X_test.append(X)
+X_test =  np.array(X_test)
+
+
+X_test = np.swapaxes(np.swapaxes(X_test, 0, 1), 1, 2)
+
+
+y_test_0 = []
+for i in range(20, 14000):
+    y_test_0.append(y_test[i, 0])
+y_test_0 = np.array(y_test_0).reshape(len(y_test_0),1)
+
+
+y_h_0 = []
+for i in range(20, 14000):
+    y_h_0.append(y_h[i, 0])
+y_h_0 = np.array(y_h_0).reshape(len(y_h_0),1)
+
+
